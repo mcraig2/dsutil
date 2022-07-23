@@ -68,7 +68,7 @@ class DataChecker:
     @staticmethod
     def assert_all_combinations_exist(
             data: pd.DataFrame,
-            cols: Optional[List[str]],
+            cols: Optional[List[str]] = None,
     ) -> None:
         pass
 
@@ -77,5 +77,20 @@ class DataChecker:
             data: pd.DataFrame,
             time_cols: List[str],
             freq: str,
+    ) -> None:
+        pass
+
+    @staticmethod
+    def assert_no_missing(
+            data: pd.DataFrame,
+            cols: Optional[List[str]] = None,
+    ) -> None:
+        pass
+
+    @staticmethod
+    def assert_percent_values_at_mode(
+            data: pd.DataFrame,
+            threshold: float,
+            cols: Optional[List[str]] = None,
     ) -> None:
         pass

@@ -121,3 +121,31 @@ class DataChecksTest(unittest.TestCase):
                 time_cols=['date'],
                 freq='2d',
             )
+
+    @unittest.skip
+    def test_no_missing(self) -> None:
+        missing_df = pd.DataFrame({
+            'one': [1, 2, None, 4],
+            'two': [2, 3, 4, 5],
+            'three': [None, None, 7, 8],
+        })
+        no_missing_df = pd.DataFrame({
+            'one': [1, 2, 3, 4],
+            'two': [2, 3, 4, 5],
+            'three': [5, 6, 7, 8],
+        })
+        self.assertIsNone(dc.assert_no_missing(no_missing_df))
+        self.assertIsNone(dc.assert_no_missing(
+            data=no_missing_df,
+            cols=no_missing_df.columns,
+        ))
+        self.assertIsNone(dc.assert_no_missing(
+            data=missing_df,
+            cols=['two'],
+        ))
+        with self.assertRaises(AssertionError):
+            dc.assert_no_missing(missing_df)
+
+    @unittest.skip
+    def test_percent_values_at_mode(self) -> None:
+        pass
