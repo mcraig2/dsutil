@@ -1,4 +1,3 @@
-from collections import namedtuple
 from datetime import datetime
 import itertools as it
 from typing import (
@@ -6,7 +5,6 @@ from typing import (
     Dict,
     List,
     Optional,
-    Tuple,
 )
 
 import numpy as np
