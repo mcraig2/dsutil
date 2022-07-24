@@ -1,10 +1,14 @@
+from collections import namedtuple
+import itertools as it
 from typing import (
     Any,
+    Dict,
     List,
     Optional,
     Tuple,
 )
 
+import numpy as np
 import pandas as pd
 
 
@@ -42,7 +46,10 @@ class DataChecker:
             right: pd.DataFrame,
             check_dtypes: Optional[bool] = True,
     ) -> None:
-        DataChecker._assert_same_column_names(left=left, right=right)
+        DataChecker._assert_same_column_names(
+            left=set(left.columns),
+            right=set(right.columns),
+        )
         if check_dtypes:
             type_compare = pd.DataFrame({
                 'left': left.dtypes.sort_index(),
@@ -59,11 +66,30 @@ class DataChecker:
                 )
 
     @staticmethod
+    def _group_dict_to_list(
+            groups: Dict[str, List[Any]],
+    ) -> List[Dict[str, Any]]:
+        for item in it.product(*groups.values()):
+            yield dict(zip(groups.keys(), item))
+
+    @staticmethod
     def assert_all_groups_exist(
             data: pd.DataFrame,
-            groups: List[Tuple[str, Any]],
+            groups: Dict[str, List[Any]],
     ) -> None:
-        pass
+        missing_groups = list()
+        for group in DataChecker._group_dict_to_list(groups=groups):
+            matching_rows = np.logical_and.reduce([
+                data[col] == val for col, val in group.items()
+            ])
+            if matching_rows.sum() == 0:
+                missing_groups.append(group)
+        if len(missing_groups) > 0:
+            raise AssertionError(
+                'There are missing groups:\n{missing}'.format(
+                    missing=missing_groups,
+                )
+            )
 
     @staticmethod
     def assert_all_combinations_exist(

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import (
     Any,
+    Dict,
     List,
     Tuple,
 )
@@ -15,8 +16,8 @@ from dsutil.utils import DataChecker as dc
 class CompleteGroupTestData:
     complete_df: pd.DataFrame
     missing_df: pd.DataFrame
-    complete_groups: List[Tuple[str, Any]]
-    missing_groups: List[Tuple[str, Any]]
+    complete_groups: Dict[str, List[Any]]
+    missing_groups: List[Dict[str, Any]]
 
 
 class DataChecksTest(unittest.TestCase):
@@ -27,32 +28,42 @@ class DataChecksTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             dc.assert_same_shape(one, two)
 
-    @unittest.skip
-    def test_has_same_columns(self) -> None:
-        self.assertTrue(dc.assert_same_columns(
+    def test_has_same_column_names(self) -> None:
+        self.assertIsNone(dc.assert_same_columns(
             left=pd.DataFrame({'a': [1], 'b': [2]}),
-            right=pd.DataFrame({'a': [-1, -2], 'b': [-2, -3]}),
+            right=pd.DataFrame({'a': [-1, -2], 'b': [-2, -3]})
         ))
-        self.assertFalse(dc.assert_same_columns(
+        with self.assertRaises(AssertionError):
+            dc.assert_same_columns(
+                left=pd.DataFrame({'a': [1], 'b': [2]}),
+                right=pd.DataFrame({'a': [1], 'c': [2]}),
+            )
+
+    def test_has_same_column_types(self) -> None:
+        self.assertIsNone(dc.assert_same_columns(
             left=pd.DataFrame({'a': [1], 'b': [2]}),
-            right=pd.DataFrame({'a': [1], 'c': [2]}),
+            right=pd.DataFrame({'a': [0, 1], 'b': [1, 2]}),
         ))
+        with self.assertRaises(AssertionError):
+            dc.assert_same_columns(
+                left=pd.DataFrame({'a': [1], 'b': [2]}),
+                right=pd.DataFrame({'a': ['1'], 'b': [2]}),
+            )
 
     def _complete_groups_test_data(self) -> CompleteGroupTestData:
         complete_df = pd.DataFrame({
             'group1': ['a', 'a', 'b', 'b', 'c', 'c'],
             'group2': ['1', '2', '1', '2', '1', '2'],
         })
-        complete_groups = [
-            ('a', '1'), ('a', '2'),
-            ('b', '1'), ('b', '2'),
-            ('c', '1'), ('c', '2'),
-        ]
+        complete_groups = {
+            'group1': ['a', 'b', 'c'],
+            'group2': ['1', '2'],
+        }
         missing_df = pd.DataFrame({
             'group1': ['a', 'a', 'b', 'c', 'c'],
             'group2': ['1', '2', '1', '1', '2'],
         })
-        missing_groups = [('b', '2')]
+        missing_groups = [{'group1': 'b', 'group2': '2'}]
         return CompleteGroupTestData(
             complete_df=complete_df,
             complete_groups=complete_groups,
@@ -60,7 +71,28 @@ class DataChecksTest(unittest.TestCase):
             missing_groups=missing_groups,
         )
 
-    @unittest.skip
+    def test_groups_dict_to_list(self) -> None:
+        def _group_cmp(item: Dict[str, Any]) -> str:
+            return '{grp1}_{grp2}'.format(
+                grp1=item['group1'],
+                grp2=item['group2'],
+            )
+
+        groups_test = self._complete_groups_test_data().complete_groups
+        expected = [
+            {'group1': 'a', 'group2': '1'},
+            {'group1': 'a', 'group2': '2'},
+            {'group1': 'b', 'group2': '1'},
+            {'group1': 'b', 'group2': '2'},
+            {'group1': 'c', 'group2': '1'},
+            {'group1': 'c', 'group2': '2'},
+        ]
+        actual = dc._group_dict_to_list(groups=groups_test)
+        self.assertEqual(
+            sorted(expected, key=_group_cmp),
+            sorted(actual, key=_group_cmp),
+        )
+
     def test_all_groups_exist(self) -> None:
         group_test_data = self._complete_groups_test_data()
         self.assertIsNone(dc.assert_all_groups_exist(
