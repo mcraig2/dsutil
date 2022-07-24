@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import List
 
 
 class PipelineFitter(ABC):
-    def __init__(self, models: List[object]):
-        self.models = models
+    def __init__(self):
+        self.models = None
 
     @abstractmethod
     def fit(self) -> None:
