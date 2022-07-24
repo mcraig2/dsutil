@@ -5,13 +5,17 @@ import uuid
 
 import pandas as pd
 
-from dsutil.pipeline import (
-    PipelineReader,
+from dsutil.pipeline.read import PipelineReader
+from dsutil.pipeline.process import (
+    ProcessedData,
     PipelineProcessor,
-    PipelineFitter,
-    PipelineMonitor,
-    PipelineWriter,
 )
+from dsutil.pipeline.fitter import PipelineFitter
+from dsutil.pipeline.monitor import (
+    ReportArtifact,
+    PipelineMonitor,
+)
+from dsutil.pipeline.write import PipelineWriter
 
 
 @dataclass
@@ -32,7 +36,6 @@ class DatasetPipelineConfig:
 class DatasetPipelineResults:
     name: str
     raw_data: List[pd.DataFrame]
-    processed_data: List[pd.DataFrame]
+    processed_data: List[ProcessedData]
     models: List[object]
-    report_artifacts: List[str]
-    output_filenames: List[str]
+    report_artifacts: List[ReportArtifact]

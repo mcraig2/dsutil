@@ -10,6 +10,7 @@ from dsutil.pipeline import (
     PassthroughReader,
     ApplyMapProcessor,
     SingleModelFitter,
+    CSVDatasetWriter,
 )
 
 
@@ -39,7 +40,7 @@ def generate_plan(data: List[pd.DataFrame]) -> DatasetPipeline:
     )
     fitter = SingleModelFitter(model=LinearRegression())
     monitor = None
-    writer = None
+    writer = CSVDatasetWriter()
     return DatasetPipeline(
         config=DatasetPipelineConfig(
             name='regression_pipeline',

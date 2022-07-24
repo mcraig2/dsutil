@@ -13,17 +13,17 @@ class CSVDatasetWriterTest(unittest.TestCase):
             pd.DataFrame({'a': [1, 2, 3, 4, 5]}),
         ]
         self.filenames = ['tmp/one.csv', 'tmp/two.csv']
-        self.writer = CSVDatasetWriter(
-            datasets=self.datasets,
-            filenames=self.filenames,
-        )
+        self.writer = CSVDatasetWriter()
         os.system('mkdir -p tmp/')
 
     def tearDown(self) -> None:
         os.system('rm -rf tmp/')
 
     def test_write(self) -> None:
-        self.writer.write()
+        self.writer.write(
+            datasets=self.datasets,
+            filenames=self.filenames,
+        )
         for actual, filename in zip(self.datasets, self.filenames):
             expected = pd.read_csv(filename)
             pd.testing.assert_frame_equal(expected, actual)

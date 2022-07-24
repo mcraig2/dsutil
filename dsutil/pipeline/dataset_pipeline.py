@@ -3,8 +3,9 @@ from typing import List, Optional
 
 import pandas as pd
 
-from dsutil.pipeline import (
-    ProcessedData,
+from dsutil.pipeline.process import ProcessedData
+from dsutil.pipeline.monitor import ReportArtifact
+from dsutil.pipeline.entities import (
     DatasetPipelineConfig,
     DatasetPipelineResults,
 )
@@ -21,7 +22,6 @@ class DatasetPipeline:
             processed_data=self.processed_data,
             models=self.models,
             report_artifacts=self.report_artifacts,
-            output_filenames=self.output_filenames,
         )
 
     @cached_property
@@ -47,13 +47,9 @@ class DatasetPipeline:
             return self.config.fitter.get_fitted()
 
     @cached_property
-    def report_artifacts(self) -> Optional[List[str]]:
+    def report_artifacts(self) -> Optional[List[ReportArtifact]]:
         if self.config.monitor is not None:
-            self.config.monitor.monitor()
-            return self.config.monitor.report_artifacts
-
-    @cached_property
-    def output_filenames(self) -> List[str]:
-        if self.config.writer is not None:
-            self.config.writer.write()
-            return self.config.writer.filenames
+            return self.config.monitor.monitor(
+                data=self.processed_data,
+                models=self.models,
+            )

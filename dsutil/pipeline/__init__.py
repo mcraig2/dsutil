@@ -1,3 +1,7 @@
+from dsutil.pipeline.entities import (
+    DatasetPipelineConfig,
+    DatasetPipelineResults,
+)
 from dsutil.pipeline.read import (
     PipelineReader,
     PassthroughReader,
@@ -15,10 +19,6 @@ from dsutil.pipeline.monitor import PipelineMonitor
 from dsutil.pipeline.write import (
     PipelineWriter,
     CSVDatasetWriter,
-)
-from dsutil.pipeline.entities import (
-    DatasetPipelineConfig,
-    DatasetPipelineResults,
 )
 from dsutil.pipeline.dataset_pipeline import DatasetPipeline
 

@@ -3,9 +3,6 @@ from typing import List
 
 
 class PipelineWriter(ABC):
-    def __init__(self, filenames: List[str]):
-        self.filenames = filenames
-
     @abstractmethod
-    def write(self) -> None:
+    def write(self, datasets: List[object], filenames: List[str]) -> None:
         pass  # pragma: no cover

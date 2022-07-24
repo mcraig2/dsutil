@@ -6,14 +6,10 @@ from dsutil.pipeline.write import PipelineWriter
 
 
 class CSVDatasetWriter(PipelineWriter):
-    def __init__(
+    def write(
             self,
             datasets: List[pd.DataFrame],
             filenames: List[str],
     ) -> None:
-        super().__init__(filenames=filenames)
-        self.datasets = datasets
-
-    def write(self) -> None:
-        for data, filename in zip(self.datasets, self.filenames):
+        for data, filename in zip(datasets, filenames):
             data.to_csv(filename, index=False)
