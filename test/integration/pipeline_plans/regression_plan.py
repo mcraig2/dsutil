@@ -7,14 +7,9 @@ from sklearn.linear_model import LinearRegression
 from dsutil.pipeline import (
     DatasetPipelineConfig,
     DatasetPipeline,
-    PipelineReader,
     PassthroughReader,
-    PipelineProcessor,
     ApplyMapProcessor,
-    PipelineFitter,
     SingleModelFitter,
-    PipelineMonitor,
-    PipelineWriter,
 )
 
 
@@ -26,6 +21,7 @@ def generate_data() -> List[pd.DataFrame]:
         n_targets=1,
         noise=1.,
         coef=True,
+        random_state=123,
     )
     data = pd.DataFrame(X)
     data['target'] = y

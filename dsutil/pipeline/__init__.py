@@ -12,7 +12,10 @@ from dsutil.pipeline.fitter import (
     SingleModelFitter,
 )
 from dsutil.pipeline.monitor import PipelineMonitor
-from dsutil.pipeline.write import PipelineWriter
+from dsutil.pipeline.write import (
+    PipelineWriter,
+    CSVDatasetWriter,
+)
 from dsutil.pipeline.entities import (
     DatasetPipelineConfig,
     DatasetPipelineResults,
@@ -30,6 +33,7 @@ __all__ = [
     SingleModelFitter,
     PipelineMonitor,
     PipelineWriter,
+    CSVDatasetWriter,
     DatasetPipelineConfig,
     DatasetPipelineResults,
     DatasetPipeline,

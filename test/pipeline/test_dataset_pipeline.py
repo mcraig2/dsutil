@@ -8,7 +8,6 @@ from dsutil.pipeline import (
     PipelineFitter,
     PipelineMonitor,
     PipelineWriter,
-    DatasetPipelineResults,
 )
 
 
