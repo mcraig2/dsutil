@@ -125,7 +125,6 @@ class DataChecksTest(unittest.TestCase):
                 cols=None,
             )
 
-    @unittest.skip
     def test_all_times_exist(self) -> None:
         all_times_df = pd.DataFrame({
             'date': pd.to_datetime([

@@ -1,4 +1,5 @@
 from collections import namedtuple
+from datetime import datetime
 import itertools as it
 from typing import (
     Any,
@@ -97,9 +98,7 @@ class DataChecker:
             cols: Optional[List[str]] = None,
     ) -> None:
         cols = cols or data.columns
-        groups = {
-            col: data[col].unique() for col in cols
-        }
+        groups = {col: data[col].unique() for col in cols}
         DataChecker.assert_all_groups_exist(data=data, groups=groups)
 
     @staticmethod
@@ -108,7 +107,24 @@ class DataChecker:
             time_cols: List[str],
             freq: str,
     ) -> None:
-        pass
+        for col in time_cols:
+            missing = (
+                data[time_cols]
+                .set_index(col)
+                .resample(freq)
+                .size()
+            ) == 0
+            if missing.sum() > 0:
+                missing_str = ', '.join(
+                    datetime.strftime(miss, '%Y-%m-%d %H:%M:%S')
+                    for miss in missing.index[missing]
+                )
+                raise AssertionError(
+                    'Times missing for {col}:\n{missing}'.format(
+                        col=col,
+                        missing=missing_str,
+                    )
+                )
 
     @staticmethod
     def assert_no_missing(
