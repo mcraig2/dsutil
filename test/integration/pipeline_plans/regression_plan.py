@@ -2,6 +2,7 @@ from typing import List
 
 import pandas as pd
 from sklearn.datasets import make_regression
+from sklearn.linear_model import LinearRegression
 
 from dsutil.pipeline import (
     DatasetPipelineConfig,
@@ -11,6 +12,7 @@ from dsutil.pipeline import (
     PipelineProcessor,
     ApplyMapProcessor,
     PipelineFitter,
+    SingleModelFitter,
     PipelineMonitor,
     PipelineWriter,
 )
@@ -35,8 +37,11 @@ def generate_data() -> List[pd.DataFrame]:
 
 def generate_plan(data: List[pd.DataFrame]) -> DatasetPipeline:
     reader = PassthroughReader(data=data)
-    processor = ApplyMapProcessor(applymap_fn=lambda x: x * 2.)
-    fitter = None
+    processor = ApplyMapProcessor(
+        applymap_fn=lambda x: x * 2.,
+        target_cols=['target'],
+    )
+    fitter = SingleModelFitter(model=LinearRegression())
     monitor = None
     writer = None
     return DatasetPipeline(

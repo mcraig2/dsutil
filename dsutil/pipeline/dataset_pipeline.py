@@ -4,6 +4,7 @@ from typing import List, Optional
 import pandas as pd
 
 from dsutil.pipeline import (
+    ProcessedData,
     DatasetPipelineConfig,
     DatasetPipelineResults,
 )
@@ -28,16 +29,22 @@ class DatasetPipeline:
         return self.config.reader.read()
 
     @cached_property
-    def processed_data(self) -> List[pd.DataFrame]:
+    def processed_data(self) -> List[ProcessedData]:
         if self.config.processor is None:
-            return self.raw_data
-        return self.config.processor.process()
+            return [
+                ProcessedData(exog=data, endog=None)
+                for data in self.raw_data
+            ]
+        return self.config.processor.process(data=self.raw_data)
 
     @cached_property
     def models(self) -> Optional[List[object]]:
         if self.config.fitter is not None:
-            self.config.fitter.fit()
-            return self.config.fitter.models
+            self.config.fitter.fit(
+                exog=[processed.exog for processed in self.processed_data],
+                endog=[processed.endog for processed in self.processed_data],
+            )
+            return self.config.fitter.get_fitted()
 
     @cached_property
     def report_artifacts(self) -> Optional[List[str]]:
