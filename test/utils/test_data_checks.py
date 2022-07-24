@@ -105,7 +105,6 @@ class DataChecksTest(unittest.TestCase):
                 groups=group_test_data.complete_groups,
             )
 
-    @unittest.skip
     def test_all_combinations_exist(self) -> None:
         group_test_data = self._complete_groups_test_data()
         self.assertIsNone(dc.assert_all_combinations_exist(

@@ -96,7 +96,11 @@ class DataChecker:
             data: pd.DataFrame,
             cols: Optional[List[str]] = None,
     ) -> None:
-        pass
+        cols = cols or data.columns
+        groups = {
+            col: data[col].unique() for col in cols
+        }
+        DataChecker.assert_all_groups_exist(data=data, groups=groups)
 
     @staticmethod
     def assert_all_times_exist(
