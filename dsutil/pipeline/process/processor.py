@@ -6,5 +6,5 @@ import pandas as pd
 
 class PipelineProcessor(ABC):
     @abstractmethod
-    def process(self) -> List[pd.DataFrame]:
+    def process(self, data: List[pd.DataFrame]) -> List[pd.DataFrame]:
         pass  # pragma: no cover
