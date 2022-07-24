@@ -165,4 +165,20 @@ class DataChecker:
             threshold: float,
             cols: Optional[List[str]] = None,
     ) -> None:
-        pass
+        assertion_msg = list()
+        for col in cols or data.columns:
+            mode = data[col].mode()[0]
+            pct_mode = (
+                (data[col] == mode).sum() /
+                data.shape[0]
+            )
+            if pct_mode > threshold:
+                assertion_msg.append(
+                    '{col} has {pct:.2f}% of values at {mode}'.format(
+                        col=col,
+                        pct=pct_mode * 100.,
+                        mode=mode,
+                    )
+                )
+        if len(assertion_msg) > 0:
+            raise AssertionError('\n'.join(assertion_msg))

@@ -176,6 +176,20 @@ class DataChecksTest(unittest.TestCase):
         with self.assertRaises(AssertionError):
             dc.assert_no_missing(missing_df)
 
-    @unittest.skip
     def test_percent_values_at_mode(self) -> None:
-        pass
+        test_df = pd.DataFrame({
+            'one': [1, 1, 1, 2],
+            'two': [2, 2, 4, 4],
+            'three': [1, 2, 3, 4],
+        })
+        self.assertIsNone(dc.assert_percent_values_at_mode(
+            data=test_df,
+            threshold=.6,
+            cols=['three'],
+        ))
+        with self.assertRaises(AssertionError):
+            dc.assert_percent_values_at_mode(
+                data=test_df,
+                threshold=.6,
+                cols=None,
+            )
