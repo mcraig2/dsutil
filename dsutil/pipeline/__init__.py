@@ -15,7 +15,10 @@ from dsutil.pipeline.fitter import (
     PipelineFitter,
     SingleModelFitter,
 )
-from dsutil.pipeline.monitor import PipelineMonitor
+from dsutil.pipeline.monitor import (
+    ReportArtifact,
+    PipelineMonitor,
+)
 from dsutil.pipeline.write import (
     PipelineWriter,
     CSVDatasetWriter,
@@ -31,6 +34,7 @@ __all__ = [
     ApplyMapProcessor,
     PipelineFitter,
     SingleModelFitter,
+    ReportArtifact,
     PipelineMonitor,
     PipelineWriter,
     CSVDatasetWriter,

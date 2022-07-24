@@ -15,14 +15,28 @@ class DatasetPipeline:
     def __init__(self, config: DatasetPipelineConfig):
         self.config = config
 
-    def run(self) -> DatasetPipelineResults:
-        return DatasetPipelineResults(
+    def run(
+            self,
+            write_out_artifacts: Optional[bool] = True,
+    ) -> DatasetPipelineResults:
+        result = DatasetPipelineResults(
             name=self.config.name,
             raw_data=self.raw_data,
             processed_data=self.processed_data,
             models=self.models,
             report_artifacts=self.report_artifacts,
         )
+        if write_out_artifacts:
+            self.save_artifacts()
+        return result
+
+    def save_artifacts(self) -> None:
+        valid = (
+            self.config.writer is not None and
+            self.report_artifacts is not None
+        )
+        if valid:
+            self.config.writer.write(artifacts=self.report_artifacts)
 
     @cached_property
     def raw_data(self) -> List[pd.DataFrame]:
@@ -51,5 +65,5 @@ class DatasetPipeline:
         if self.config.monitor is not None:
             return self.config.monitor.monitor(
                 data=self.processed_data,
-                models=self.models,
+                model_fitter=self.config.fitter,
             )

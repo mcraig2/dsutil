@@ -3,7 +3,10 @@ import unittest
 
 import pandas as pd
 
-from dsutil.pipeline import CSVDatasetWriter
+from dsutil.pipeline import (
+    CSVDatasetWriter,
+    ReportArtifact,
+)
 
 
 class CSVDatasetWriterTest(unittest.TestCase):
@@ -20,10 +23,11 @@ class CSVDatasetWriterTest(unittest.TestCase):
         os.system('rm -rf tmp/')
 
     def test_write(self) -> None:
-        self.writer.write(
-            datasets=self.datasets,
-            filenames=self.filenames,
-        )
+        artifacts = [
+            ReportArtifact(data=data, filename=filename)
+            for data, filename in zip(self.datasets, self.filenames)
+        ]
+        self.writer.write(artifacts=artifacts)
         for actual, filename in zip(self.datasets, self.filenames):
             expected = pd.read_csv(filename)
             pd.testing.assert_frame_equal(expected, actual)

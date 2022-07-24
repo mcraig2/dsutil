@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from dsutil.pipeline.entities import ProcessedData
+from dsutil.pipeline.fitter import PipelineFitter
 
 
 @dataclass
@@ -16,6 +17,6 @@ class PipelineMonitor(ABC):
     def monitor(
             self,
             data: List[ProcessedData],
-            models: List[object],
+            model_fitter: PipelineFitter,
     ) -> List[ReportArtifact]:
         pass  # pragma: no cover

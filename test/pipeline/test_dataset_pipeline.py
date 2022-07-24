@@ -1,3 +1,4 @@
+import os
 import unittest
 from typing import List
 
@@ -47,17 +48,22 @@ class MonitorTestObject(PipelineMonitor):
     def monitor(
             self,
             data: List[ProcessedData],
-            models: List[object],
+            model_fitter: PipelineFitter,
     ) -> List[ReportArtifact]:
+        exog = data[0].exog['one']
+        yhat = model_fitter.predict(exog=[exog])
         return [
-            ReportArtifact(data=1., filename='artifact1'),
-            ReportArtifact(data=2., filename='artifact2'),
+            ReportArtifact(data=yhat[0].min(), filename='pred_min'),
+            ReportArtifact(data=yhat[0].max(), filename='pred_max'),
         ]
 
 
 class WriterTestObject(PipelineWriter):
-    def write(self, datasets: List[object], filenames: List[str]) -> None:
-        pass
+    def write(self, artifacts: List[ReportArtifact]) -> None:
+        with open('tmp/output.csv', 'w') as fle:
+            fle.write(','.join([
+                artifact.filename for artifact in artifacts
+            ]))
 
 
 class DatasetPipelineTest(unittest.TestCase):
@@ -71,6 +77,10 @@ class DatasetPipelineTest(unittest.TestCase):
             writer=WriterTestObject(),
         )
         self.pipeline = DatasetPipeline(config=self.config)
+        os.system('mkdir -p tmp/')
+
+    def tearDown(self) -> None:
+        os.system('rm -rf tmp/')
 
     def test_raw_data(self) -> None:
         expected = pd.DataFrame({'one': [1, 2, 3], 'target': [4, 5, 6]})
@@ -86,6 +96,28 @@ class DatasetPipelineTest(unittest.TestCase):
         pd.testing.assert_frame_equal(expected.exog, actual.exog)
         pd.testing.assert_frame_equal(expected.endog, actual.endog)
 
+    def test_missing_some_configs(self) -> None:
+        new_config = DatasetPipelineConfig(
+            name='new_pipeline',
+            reader=ReaderTestObject(),
+            processor=None,
+            fitter=None,
+            monitor=None,
+            writer=None,
+        )
+        pipeline = DatasetPipeline(config=new_config)
+        expected = [
+            ProcessedData(
+                exog=pd.DataFrame({'one': [1, 2, 3], 'target': [4, 5, 6]}),
+                endog=None,
+            )
+        ]
+        actual = pipeline.processed_data
+        pd.testing.assert_frame_equal(expected[0].exog, actual[0].exog)
+        self.assertIsNone(actual[0].endog)
+        self.assertIsNone(pipeline.models)
+        self.assertIsNone(pipeline.report_artifacts)
+
     def test_models(self) -> None:
         expected = ['model']
         actual = self.pipeline.models
@@ -93,8 +125,8 @@ class DatasetPipelineTest(unittest.TestCase):
 
     def test_report_artifacts(self) -> None:
         expected = [
-            ReportArtifact(data=1., filename='artifact1'),
-            ReportArtifact(data=2., filename='artifact2'),
+            ReportArtifact(data=4., filename='pred_min'),
+            ReportArtifact(data=12., filename='pred_max'),
         ]
         actual = self.pipeline.report_artifacts
         for expected_art, actual_art in zip(expected, actual):
@@ -113,8 +145,8 @@ class DatasetPipelineTest(unittest.TestCase):
             ],
             models=['model'],
             report_artifacts=[
-                ReportArtifact(data=1., filename='artifact1'),
-                ReportArtifact(data=2., filename='artifact2'),
+                ReportArtifact(data=4., filename='pred_min'),
+                ReportArtifact(data=12., filename='pred_max'),
             ],
         )
         actual = self.pipeline.run()
@@ -145,3 +177,6 @@ class DatasetPipelineTest(unittest.TestCase):
             expected.report_artifacts[1].filename,
             expected.report_artifacts[1].filename,
         )
+        with open('tmp/output.csv', 'r') as fle:
+            contents = fle.read()
+            self.assertEqual(contents, 'pred_min,pred_max')

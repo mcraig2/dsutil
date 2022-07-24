@@ -1,15 +1,10 @@
 from typing import List
 
-import pandas as pd
-
 from dsutil.pipeline.write import PipelineWriter
+from dsutil.pipeline.monitor import ReportArtifact
 
 
 class CSVDatasetWriter(PipelineWriter):
-    def write(
-            self,
-            datasets: List[pd.DataFrame],
-            filenames: List[str],
-    ) -> None:
-        for data, filename in zip(datasets, filenames):
-            data.to_csv(filename, index=False)
+    def write(self, artifacts: List[ReportArtifact]) -> None:
+        for artifact in artifacts:
+            artifact.data.to_csv(artifact.filename, index=False)
