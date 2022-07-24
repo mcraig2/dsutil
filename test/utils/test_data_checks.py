@@ -7,6 +7,7 @@ from typing import (
 )
 import unittest
 
+import numpy as np
 import pandas as pd
 
 from dsutil.utils import DataChecker as dc
@@ -152,12 +153,11 @@ class DataChecksTest(unittest.TestCase):
                 freq='2d',
             )
 
-    @unittest.skip
     def test_no_missing(self) -> None:
         missing_df = pd.DataFrame({
-            'one': [1, 2, None, 4],
-            'two': [2, 3, 4, 5],
-            'three': [None, None, 7, 8],
+            'one': [1, 2, None, 4, np.inf, 6, -np.inf, 8, np.nan],
+            'two': [2, 3, 4, 5, 6, 7, 8, 9, 10],
+            'three': [-np.inf, np.inf, 7, 8, 9, 10, 11, 12, 13],
         })
         no_missing_df = pd.DataFrame({
             'one': [1, 2, 3, 4],
@@ -167,7 +167,7 @@ class DataChecksTest(unittest.TestCase):
         self.assertIsNone(dc.assert_no_missing(no_missing_df))
         self.assertIsNone(dc.assert_no_missing(
             data=no_missing_df,
-            cols=no_missing_df.columns,
+            cols=['one', 'two', 'three'],
         ))
         self.assertIsNone(dc.assert_no_missing(
             data=missing_df,
